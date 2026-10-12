@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -37,6 +37,16 @@ namespace osu.Desktop
             // This has bitten us in the rear before (bricked updater), and although the underlying issue from
             // last time has been fixed, let's not tempt fate.
             setupVelopack(args);
+
+            if (OperatingSystem.IsLinux() && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WAYLAND_DISPLAY")))
+            {
+                // Prefer native Wayland if the user has not explicitly configured a video driver override.
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SDL_VIDEO_DRIVER")))
+                    Environment.SetEnvironmentVariable("SDL_VIDEO_DRIVER", "wayland,x11");
+
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SDL_VIDEODRIVER")))
+                    Environment.SetEnvironmentVariable("SDL_VIDEODRIVER", "wayland,x11");
+            }
 
             if (OperatingSystem.IsWindows())
             {
